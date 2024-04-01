@@ -4,5 +4,6 @@ CREATE TABLE users(
     password VARCHAR(100) NOT NULL,
     user_name text NOT NULL,
     mobile_number BIGINT UNIQUE NOT NULL,
-    city VARCHAR(20) NOT NULL
+    city VARCHAR(20) NOT NULL,
+    secretCode BIGINT NOT NULL
 )

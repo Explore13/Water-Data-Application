@@ -13,6 +13,34 @@
             padding: 0;
         }
 
+        /* Card styles */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin: 20px;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+
+        /* Button styles */
+        .btn {
+            background-color: #0766c6;
+            color: white;
+            padding: 16px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #5896d3;
+        }
 
         .mainDiv {
             display: flex;
@@ -46,10 +74,8 @@
             color: #6EB7FF;
         }
 
-
         .data-item_ph {
             text-align: center;
-
         }
 
         .data-item_ph h2 {
@@ -75,44 +101,162 @@
             background-color: #FFF;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             border-radius: 20px;
+        }
 
+        /* Float button styles */
+        .float-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
 
+        .float-button .dropdown {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .float-button .dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .float-button .dropdown ul li {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .float-button .dropdown ul li:hover {
+            background-color: #f5f5f5;
+        }
+
+        .float-button .dropdown.active {
+            display: block;
+        }
+
+        /* User profile card styles */
+        .user-profile-card {
+            display: none;
+            position: fixed;
+            right: 20px;
+            bottom: 70px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)  forwards;
+        }
+
+        .user-profile-card.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="data-head">IOT Base Water Quality Monitraing Bot</div>
+    <div class="data-head">IOT Base Water Quality Monitoring Bot</div>
     <div class="data-container">
         <div class="data-item">
             <h2>Temperature</h2>
             <p class="value" id="temperature">22 &#8451;</p>
-
-
             <h2>Turbidity</h2>
             <p class="value" id="temperature">22 &#8451;</p>
         </div>
         <div class="data-item_ph">
             <h2>PH</h2>
             <p class="value" id="humidity">10</p>
-
-
             <h2>Gas</h2>
             <p class="value" id="humidity">10%</p>
         </div>
     </div>
 
+    <!-- Float button for dropdown -->
+    <div class="float-button">
+        <button id="floatButton" class="btn" onclick="toggleDropdown()">U</button>
+        <div class="dropdown" id="dropdown">
+            <ul>
+                <li onclick="showUserProfile()">User Profile</li>
+                <li onclick="logout()">Logout</li>
+            </ul>
+        </div>
+    </div>
 
+    <!-- Placeholder for user data display -->
+    <div id="userDataContainer" class="user-profile-card">
+        <h2>User Profile</h2>
+        <div id="userData"></div>
+    </div>
 
+    <!-- JavaScript for float button and dropdown -->
+    <script>
+        // Function to toggle dropdown and user profile card
+        function toggleDropdown() {
+            var dropdown = document.getElementById('dropdown');
+            var userProfileCard = document.getElementById('userDataContainer');
+            if (dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+            if (userProfileCard.classList.contains('active')) {
+                userProfileCard.classList.remove('active');
+            } else {
+                dropdown.classList.add('active');
+            }
+        }
 
+        // Function to show user profile card
+        function showUserProfile() {
+            var userProfileCard = document.getElementById('userDataContainer');
+            var dropdown = document.getElementById('dropdown');
+            userProfileCard.classList.toggle('active');
+            dropdown.classList.remove('active');
+            fetchUserData();
+        }
 
+        // Function to fetch user data
+        function fetchUserData() {
+            fetch('/userData')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('userData').innerHTML = `
+                        <p><b>Email: </b>${data.email}</p>
+                        <p><b>Name: </b>${data.user_name}</p>
+                        <p><b>Mobile Number: </b>${data.mobile_number}</p>
+                        <p><b>City: </b>${data.city}</p>
+                    `;
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        }
+
+        // Function for logout
+        function logout() {
+            window.location.href = '/logout';
+        }
+    </script>
 
     <!-- the scripts for products you want to access must be added-->
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -134,7 +278,6 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-
         // getting reference to the database
         var database = firebase.database();
 
@@ -153,12 +296,7 @@
             document.getElementById('temperature').innerHTML = temp + "&#8451;";
         })
 
-
-
-
-
     </script>
-
 </body>
 
 </html>
